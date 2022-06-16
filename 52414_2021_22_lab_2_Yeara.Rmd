@@ -163,6 +163,7 @@ Design and implement a different guessing strategy, run it on $B=100$ random sim
 
 
 **Solution:**  
+[INSERT YOUR TEXT, CODE, PLOTS AND TABLE HERE, SEPERATED INTO SUB-QUESTIONS]
 
 # PART 1 - MOBY-DICK
 ## 1. 
@@ -172,13 +173,59 @@ url <- "https://www.gutenberg.org/files/2701/2701-h/2701-h.htm"
 moby_dick <- read_html(url)
 
 txt_moby <- html_text(html_nodes(moby_dick, "body"))
-txt_moby <- gsub("\r\n","",txt_moby)
-print(head(txt_moby))
+txt_moby <- str_sub(txt_moby, 5, nchar(txt_moby))
+# txt_moby <- gsub("\r\n","",txt_moby)
+first_line <- str_sub(txt_moby, 1, nchar(gsub("(^[^\r\n]*).*$", "\\1", txt_moby)))
+print(first_line)
 ```
 
-[INSERT YOUR TEXT, CODE, PLOTS AND TABLE HERE, SEPERATED INTO SUB-QUESTIONS]
+### section b
+```{r}
+clean_moby <- unlist(strsplit(txt_moby, split = "[ ]|[.]|[\n]|[\r]|[,]"))
+dat_moby <- data.frame("word" = clean_moby)
+dat_moby <- filter(dat_moby, word!="")
+dat_moby$length <- as.numeric(nchar(dat_moby$word))
 
 
+paste0("There are ", length(dat_moby$word), " words")
+ggplot(dat_moby, aes(length)) + labs(title="Words' Length Dist.", x = "Word Length") + geom_bar(fill = "#0073C2FF")
+
+mean(dat_moby$length)
+words_length <- dat_moby %>% group_by(length) %>% summarize(freq = n()) %>% arrange(-freq)
+
+paste0("Median: ", median(dat_moby$length))
+paste0("Mean: ", mean(dat_moby$length))
+paste0("Longest word: ", max(dat_moby$length), " characters.")
+paste0("Most common word length: ", words_length$length[1], "characters.")
+```
+### section c
+```{r}
+moby_words_frequency <- dat_moby %>% group_by(word) %>% summarise(freq = n()) %>% arrange(-freq)
+
+#10 most common words
+head(moby_words_frequency$word, n=10)
+```
+[It is not surprising that 10 most common words are all determiners. These words are essential in writing and are always relevant regardless of text content.]
+
+## 2.
+### section a
+```{r}
+start_point <- str_locate_all(txt_moby, regex("CHAPTER \\d. Loomings."))
+start_point$end
+start_point <- str_locate(txt_moby, regex("CHAPTER\\s\\d+\\.\\s[\\w\\s]*\\.$"))
+
+all_chap <- str_sub(txt_moby, 35376, 38000) #nchar(txt_moby))
+chap_vec <- unlist(strsplit(all_chap, split = "CHAPTER", fixed=TRUE))
+dat_chap <- data.frame("chapter" =(1:128), "chap_content" = chap_vec)
+dat_moby$length <- as.numeric(nchar(dat_moby$word))
+```
+
+
+
+
+# PART 2 - WORDLE
+
+## 1. 
 ### section a
 ```{r}
 word_bank <- read_file("https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt")
