@@ -137,7 +137,7 @@ find_words <- function(my_word, search_array){
   search_word <- as.character(my_word)
   result_vec <- c()
   for(i in search_array){
-    word_count <- str_count(dat_chap$chap_words[i], search_word)
+    word_count <- str_count(as.character(dat_chap$chap_words[i]), search_word)
     cur_relative_freq <- word_count/dat_chap$num_of_words[i]
     result_vec <- c(result_vec, cur_relative_freq)
   }
@@ -145,12 +145,53 @@ find_words <- function(my_word, search_array){
 }
 
 #Moby search
-# ggplot(dat_chap, aes(x=chapter_num, y=num_of_words)) + labs(title="Number of Words by Chapter", x = "Chapter", y="Num of Words") + geom_bar(stat="identity", fill = "#0073C2FF", width = 0.5) + theme(axis.text.x = element_text(angle = 90, vjust =0.5, hjust=0.5))
-find_words("Ahab", 1:135)
-find_words("Moby", 1:135)
-find_words("sea", 1:135)
+
+#find Ahab
+ggplot(dat_chap, aes(x=chapter_num, y=find_words("Ahab", 1:135))) + labs(title="Relative Frequency of 'Ahab' by Chapter", x = "Chapter", y="Relative frequency") + geom_bar(stat="identity", fill = "#0073C2FF", width = 0.5) + theme(axis.text.x = element_text(angle = 90, vjust =0.5, hjust=0.5))
+
+#find Moby
+ggplot(dat_chap, aes(x=chapter_num, y=find_words("Moby", 1:135))) + labs(title="Relative Frequency of 'Moby' by Chapter", x = "Chapter", y="Relative frequency") + geom_bar(stat="identity", fill = "#0073C2FF", width = 0.5) + theme(axis.text.x = element_text(angle = 90, vjust =0.5, hjust=0.5))
+
+#find sea
+ggplot(dat_chap, aes(x=chapter_num, y=find_words("sea", 1:135))) + labs(title="Relative Frequency of 'sea' by Chapter", x = "Chapter", y="Relative frequency") + geom_bar(stat="identity", fill = "#0073C2FF", width = 0.5) + theme(axis.text.x = element_text(angle = 90, vjust =0.5, hjust=0.5))
+```
+[Do you see a different behavior for the different words? in which parts of the book are they frequent?
+The word Ahab is frequent for almost 50% of the book, split to two parts- starting Chapter 16 for the first, and Chapter 99 for the second.
+The word Moby is frequent mostly at the second quarter of the book and at the last chapters.
+The word sea is frequent for most of the chapters of books.]
+
+## 3.
+### section a
+#### Answer 1
+```{r}
+clean_moby <- stringi::stri_remove_empty(clean_moby)
+prob_same_word1 <- sum(moby_words_frequency$freq^2)/(length(clean_moby)^2)
 ```
 
+#### Answer 2
+```{r}
+B = 100000
+set.seed(2022)
+
+stim_prob <- function(num){
+  count = 0
+  for(i in 1:num){
+  A_choice <- sample(clean_moby, 1)
+  B_choice <- sample(clean_moby, 1)
+  count <- ifelse(A_choice==B_choice, count+1, count)
+  }
+  return(count/num)
+}
+prob_same_word2 <- stim_prob(B)
+```
+
+### section b
+```{r}
+
+options(scipen = 999)
+num_unique_words <- length(unique(clean_moby))
+prob_same_word3 <- 1/num_unique_words
+```
 
 # PART 2 - WORDLE
 
@@ -169,7 +210,6 @@ for(let in letter){
   }
   table_26on5 <- append(new_vec)
 }
-
 ```
 
 
